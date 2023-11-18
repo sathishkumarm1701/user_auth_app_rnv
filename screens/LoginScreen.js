@@ -1,32 +1,29 @@
-import { useContext, useState } from 'react';
-import { Alert } from 'react-native';
-
+import {Alert} from 'react-native';
 import AuthContent from '../components/Auth/AuthContent';
 import LoadingOverlay from '../components/ui/LoadingOverlay';
-import { AuthContext } from '../store/auth-context';
-import { login } from '../util/auth';
+import {login} from '../util/auth';
+import {useContext, useState} from 'react';
+import {AuthContext} from '../store/auth-context';
 
 function LoginScreen() {
-  const [isAuthenticating, setIsAuthenticating] = useState(false);
-
+  const [isAuthenticating, setIsAuthnticating] = useState(false);
   const authCtx = useContext(AuthContext);
-
-  async function loginHandler({ email, password }) {
-    setIsAuthenticating(true);
+  async function loginHandler({email, password}) {
+    setIsAuthnticating(true);
     try {
       const token = await login(email, password);
       authCtx.authenticate(token);
     } catch (error) {
       Alert.alert(
-        'Authentication failed!',
-        'Could not log you in. Please check your credentials or try again later!'
+        'Authentication failed',
+        'Please check your credentials and try again!',
       );
-      setIsAuthenticating(false);
+      setIsAuthnticating(false);
     }
   }
 
   if (isAuthenticating) {
-    return <LoadingOverlay message="Logging you in..." />;
+    return <LoadingOverlay message={'Logging You in...'} />;
   }
 
   return <AuthContent isLogin onAuthenticate={loginHandler} />;
