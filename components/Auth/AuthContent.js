@@ -1,9 +1,7 @@
 import {useState} from 'react';
-import {Alert, StyleSheet, View} from 'react-native';
-
+import {Alert, StyleSheet, View, ImageBackground} from 'react-native';
 import FlatButton from '../ui/FlatButton';
 import AuthForm from './AuthForm';
-import {Colors} from '../../constants/styles';
 import {useNavigation} from '@react-navigation/native';
 
 function AuthContent({isLogin, onAuthenticate}) {
@@ -52,18 +50,25 @@ function AuthContent({isLogin, onAuthenticate}) {
   }
 
   return (
-    <View style={styles.authContent}>
-      <AuthForm
-        isLogin={isLogin}
-        onSubmit={submitHandler}
-        credentialsInvalid={credentialsInvalid}
-      />
-      <View style={styles.buttons}>
-        <FlatButton onPress={switchAuthModeHandler}>
-          {isLogin ? 'Create a new user' : 'Log in instead'}
-        </FlatButton>
+    <ImageBackground
+      source={require('../../screens/placeholders/pexels-cottonbro-studio-4069292.jpg')}
+      style={styles.backgroundImage}>
+      <View style={styles.overlay} />
+      <View style={styles.authContent}>
+        <AuthForm
+          isLogin={isLogin}
+          onSubmit={submitHandler}
+          credentialsInvalid={credentialsInvalid}
+        />
+        <View style={styles.buttons}>
+          <FlatButton
+            onPress={switchAuthModeHandler}
+            style={styles.buttonBackground}>
+            {isLogin ? 'Create a new user' : 'Log in instead'}
+          </FlatButton>
+        </View>
       </View>
-    </View>
+    </ImageBackground>
   );
 }
 
@@ -71,18 +76,30 @@ export default AuthContent;
 
 const styles = StyleSheet.create({
   authContent: {
-    marginTop: 64,
-    marginHorizontal: 32,
+    marginTop: 14,
+    marginHorizontal: 12,
     padding: 16,
-    borderRadius: 8,
-    backgroundColor: Colors.primary800,
-    elevation: 2,
-    shadowColor: 'black',
-    shadowOffset: {width: 1, height: 1},
-    shadowOpacity: 0.35,
-    shadowRadius: 4,
+    width: 300,
   },
   buttons: {
     marginTop: 8,
+    elevation: 2,
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: 'cover',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 700,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#EEB1D9', // Your desired fade color
+    opacity: 0.5, // Adjust the opacity as needed
+  },
+  buttonBackground: {
+    backgroundColor: '#BF4694', // Your desired button background color
+    padding: 10, // Adjust padding as needed
+    borderRadius: 8, // Adjust border radius as needed
   },
 });

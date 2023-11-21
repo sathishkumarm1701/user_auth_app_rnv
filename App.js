@@ -1,17 +1,15 @@
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-// import { StatusBar } from 'expo-status-bar';
-
+import {StatusBar} from 'react-native';
 import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
 import WelcomeScreen from './screens/WelcomeScreen';
 import {Colors} from './constants/styles';
 import {AuthContext, AuthContextProvider} from './store/auth-context';
-import {useContext, useEffect, useState} from 'react';
+import {useContext, useEffect} from 'react';
 import IconButton from './components/ui/IconButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Text} from 'react-native';
-import LoadingOverlay from './components/ui/LoadingOverlay';
+import SplashScreen from 'react-native-splash-screen';
 
 const Stack = createNativeStackNavigator();
 
@@ -70,10 +68,18 @@ function Root() {
   const authCtx = useContext(AuthContext);
 
   useEffect(() => {
+    SplashScreen.hide();
     async function fetchAuthToken() {
       const storedToken = await AsyncStorage.getItem('token');
-      if (storedToken) {
-        authCtx.authenticate(storedToken);
+      const storedEmail = await AsyncStorage.getItem('email');
+      const storedExpTime = await AsyncStorage.getItem('TokenExpTime');
+      const listCred = {
+        idToken: storedToken,
+        email: storedEmail,
+        expiresIn: storedExpTime,
+      };
+      if (storedToken && storedEmail && storedExpTime) {
+        authCtx.authenticate(listCred);
       }
     }
     fetchAuthToken();
@@ -84,8 +90,7 @@ function Root() {
 export default function App() {
   return (
     <>
-      {/* <StatusBar style="light" /> */}
-
+      <StatusBar style="light" />
       <AuthContextProvider>
         <Root />
       </AuthContextProvider>
