@@ -1,6 +1,7 @@
 import {useContext, useEffect, useState} from 'react';
 import {
   Alert,
+  Dimensions,
   ImageBackground,
   Modal,
   Pressable,
@@ -10,13 +11,15 @@ import {
 } from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';
 import {AuthContext} from '../store/auth-context';
+import LottieView from 'lottie-react-native';
+const {width, height} = Dimensions.get('window');
 
 function WelcomeScreen() {
   const {userEmail} = useContext(AuthContext);
 
   function cleanEmail(email) {
     const atIndex = email.indexOf('@');
-    if (atIndex !== -1 && email.endsWith('@gmail.com')) {
+    if (atIndex !== -1 && email.endsWith('@gmail.com' && '@')) {
       return email.substring(0, atIndex); // Extracts only the username part before '@'
     }
     return email; // If '@' is not found or the email doesn't end with '@gmail.com', return the original email
@@ -29,22 +32,29 @@ function WelcomeScreen() {
   }, []);
 
   return (
-    <ImageBackground
-      source={require('../screens/placeholders/goldfish.jpg')}
-      style={{flex: 1}}>
-      <View style={styles.overlay} />
+    <View>
+      {/* // <ImageBackground */}
+      {/* //   source={require('../screens/placeholders/goldfish.jpg')} */}
+      {/* //   style={{flex: 1}}> */}
+      {/* <View style={styles.overlay} />
       <View style={styles.rootContainer}>
-        <YoutubePlayer
+        {/* <YoutubePlayer
           height={300}
           play={true}
           webViewStyle={{borderRadius: 30}}
           forceAndroidAutoplay={true}
           videoId={'P1IZJt9t39Y'}
           allowWebViewZoom={true}
-        />
-        <Text style={styles.title}>Hi🖐️{userNameClean}!</Text>
-        <Text style={styles.txt}>You authenticated successfully!!</Text>
-        <View style={styles.centeredView}>
+  /> */}
+      <Text style={styles.title}>Hi🖐️{userNameClean}!</Text>
+      <Text style={styles.txt}>You authenticated successfully!!</Text>
+      <LottieView
+        style={styles.lottie}
+        source={require('./Animations/confetti.json')}
+        autoPlay
+        loop
+      />
+      {/* <View style={styles.centeredView}>
           <Modal
             animationType="slide"
             transparent={true}
@@ -68,15 +78,21 @@ function WelcomeScreen() {
               </View>
             </View>
           </Modal>
-        </View>
-      </View>
-    </ImageBackground>
+        </View> */}
+      {/* </View> */}
+      {/* // </ImageBackground> */}
+    </View>
   );
 }
 
 export default WelcomeScreen;
 
 const styles = StyleSheet.create({
+  lottie: {
+    width: width * 0.9,
+    height: width,
+    justifyContent: 'center',
+  },
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: '#FD4C79', // Your desired fade color
