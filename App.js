@@ -10,17 +10,26 @@ import {useContext, useEffect} from 'react';
 import IconButton from './components/ui/IconButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SplashScreen from 'react-native-splash-screen';
+import OnboardingScreen from './screens/Onboarding';
 
 const Stack = createNativeStackNavigator();
 
 function AuthStack() {
   return (
     <Stack.Navigator
+      initialRouteName="OnboardingScreen"
       screenOptions={{
         headerStyle: {backgroundColor: Colors.primary500},
         headerTintColor: 'white',
-        contentStyle: {backgroundColor: Colors.primary100},
-      }}>
+        // contentStyle: {backgroundColor: Colors.primary100},
+      }}
+    >
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="OnboardingScreen"
+        component={OnboardingScreen}
+      />
+
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Signup" component={SignupScreen} />
     </Stack.Navigator>
@@ -50,6 +59,7 @@ function AuthenticatedStack() {
           ),
         }}
       />
+      {/* <Stack.Screen name="Onboarding" component={Onboarding} /> */}
     </Stack.Navigator>
   );
 }
@@ -73,10 +83,12 @@ function Root() {
       const storedToken = await AsyncStorage.getItem('token');
       const storedEmail = await AsyncStorage.getItem('email');
       const storedExpTime = await AsyncStorage.getItem('TokenExpTime');
+      const refreshToken = await AsyncStorage.getItem('refreshToken');
       const listCred = {
         idToken: storedToken,
         email: storedEmail,
         expiresIn: storedExpTime,
+        refreshToken: refreshToken,
       };
       if (storedToken && storedEmail && storedExpTime) {
         authCtx.authenticate(listCred);
@@ -92,6 +104,7 @@ export default function App() {
     <>
       <StatusBar style="light" />
       <AuthContextProvider>
+        {/* <Onboarding /> */}
         <Root />
       </AuthContextProvider>
     </>
