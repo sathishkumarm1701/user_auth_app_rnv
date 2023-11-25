@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import {
   Alert,
   StyleSheet,
@@ -10,6 +10,9 @@ import {
 import FlatButton from '../ui/FlatButton';
 import AuthForm from './AuthForm';
 import {useNavigation} from '@react-navigation/native';
+import IconButton from '../ui/IconButton';
+import {AuthContext} from '../../store/auth-context';
+import { GoogleSignin, GoogleSigninButton } from '@react-native-google-signin/google-signin';
 
 function AuthContent({isLogin, onAuthenticate}) {
   const navigation = useNavigation();
@@ -19,6 +22,7 @@ function AuthContent({isLogin, onAuthenticate}) {
     confirmEmail: false,
     confirmPassword: false,
   });
+  const {onGoogleButtonPress} = useContext(AuthContext);
 
   function switchAuthModeHandler() {
     if (isLogin) {
@@ -78,6 +82,20 @@ function AuthContent({isLogin, onAuthenticate}) {
             </Text>
           )}
         </View>
+        <View>
+          <IconButton
+            icon="logo-google"
+            color={'white'}
+            size={24}
+            onPress={onGoogleButtonPress}
+          />
+          {/* <GoogleSigninButton
+            size={GoogleSigninButton.Size.Wide}
+            color={GoogleSigninButton.Color.Dark}
+            onPress={this._signIn}
+            disabled={this.state.isSigninInProgress}
+          /> */}
+        </View>
       </View>
     </View>
   );
@@ -106,7 +124,7 @@ const styles = StyleSheet.create({
   },
   backgroundImage: {
     flex: 1,
-    backgroundColor: '#7E8B92',
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
     resizeMode: 'cover',
@@ -121,7 +139,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#6A6A6A',
+    backgroundColor: '#93A8AC',
     opacity: 0.5,
     borderRadius: 10,
   },

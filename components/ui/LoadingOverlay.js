@@ -1,10 +1,23 @@
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
-
-function LoadingOverlay({ message }) {
+import {
+  ActivityIndicator,
+  Dimensions,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import LottieView from 'lottie-react-native';
+const {width, height} = Dimensions.get('window');
+function LoadingOverlay({message}) {
   return (
     <View style={styles.rootContainer}>
       <Text style={styles.message}>{message}</Text>
-      <ActivityIndicator size="large" />
+      {/* <ActivityIndicator size="large" /> */}
+      <LottieView
+        style={styles.lottie}
+        source={require('../../screens/Animations/loadingAnim.json')}
+        autoPlay
+        loop
+      />
     </View>
   );
 }
@@ -21,5 +34,10 @@ const styles = StyleSheet.create({
   message: {
     fontSize: 16,
     marginBottom: 12,
+  },
+  lottie: {
+    width: width * 0.9,
+    height: width,
+    justifyContent: 'center',
   },
 });
