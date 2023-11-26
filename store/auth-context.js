@@ -1,16 +1,13 @@
 import {createContext, useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {FIREBASE_AUTH} from '../util/auth-config';
 import {Alert} from 'react-native';
 import {
   GoogleSignin,
-  GoogleSigninButton,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
+import auth from '@react-native-firebase/auth';
+// const auth = FIREBASE_AUTH;
 
-const auth = FIREBASE_AUTH;
-
-// console.log(auth);
 export const AuthContext = createContext({
   token: '',
   isAuthenticated: false,
@@ -30,24 +27,20 @@ export function AuthContextProvider({children}) {
     GoogleSignin.configure({
       webClientId:
         '723652959437-v87sc5hmd5veo3j53pje6q7r7vh3a6no.apps.googleusercontent.com',
+      offlineAccess: true,
     });
   }, []);
 
   async function onGoogleButtonPress() {
-    // debugger
-
     try {
       // Check if your device supports Google Play
       await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
-      // Get the users ID token
       const {idToken} = await GoogleSignin.signIn();
-      console.log(idToken);
-      setAuthToken(idToken)
-      // Create a Google credential with the token
-      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-      console.log(googleCredential);
-      // Sign-in the user with the credential
-      return auth().signInWithCredential(googleCredential);
+      setAuthToken(idToken);
+      const googleCredential = await auth.GoogleAuthProvider.credential(
+        idToken,
+      );
+      return auth.signInWithCredential(googleCredential);
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // user cancelled the login flow
@@ -61,8 +54,16 @@ export function AuthContextProvider({children}) {
     }
   }
 
+  const signOut = async () => {
+    try {
+      // await GoogleSignin.revokeAccess();
+      await GoogleSignin.signOut();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const authenticate = async token => {
-    // console.log(token.idToken);
     setAuthToken(token.idToken);
     setUserEmail(token.email);
     setTokenExpTime(token.expiresIn);
@@ -100,9 +101,9 @@ export function AuthContextProvider({children}) {
     }
   };
 
-  // useEffect(() => {
-  //   checkTokenValidity();
-  // }, []);
+  useEffect(() => {
+    checkTokenValidity();
+  }, []);
 
   const logout = async () => {
     await AsyncStorage.removeItem('token');
@@ -112,6 +113,7 @@ export function AuthContextProvider({children}) {
     setUserEmail('');
     setTokenExpTime('');
     await auth.signOut();
+    await signOut();
     Alert.alert('Success ✅', 'Logout successfully');
   };
 

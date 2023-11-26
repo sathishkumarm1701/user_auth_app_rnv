@@ -1,18 +1,10 @@
 import {useContext, useEffect, useState} from 'react';
-import {
-  Alert,
-  StyleSheet,
-  View,
-  ImageBackground,
-  Text,
-  TouchableOpacity,
-} from 'react-native';
-import FlatButton from '../ui/FlatButton';
+import {Alert, StyleSheet, View, Text} from 'react-native';
 import AuthForm from './AuthForm';
 import {useNavigation} from '@react-navigation/native';
-import IconButton from '../ui/IconButton';
 import {AuthContext} from '../../store/auth-context';
-import { GoogleSignin, GoogleSigninButton } from '@react-native-google-signin/google-signin';
+import GoogleLoginButton from '../../constants/GoogleButton';
+import messaging from '@react-native-firebase/messaging';
 
 function AuthContent({isLogin, onAuthenticate}) {
   const navigation = useNavigation();
@@ -24,6 +16,27 @@ function AuthContent({isLogin, onAuthenticate}) {
   });
   const {onGoogleButtonPress} = useContext(AuthContext);
 
+  async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+    }
+  }
+
+  const getToken = async () => {
+    const token = await messaging().getToken();
+    console.log(token);
+  };
+
+
+  
+  useEffect(() => {
+    requestUserPermission();
+    getToken();
+  }, []);
   function switchAuthModeHandler() {
     if (isLogin) {
       navigation.replace('Signup');
@@ -82,19 +95,8 @@ function AuthContent({isLogin, onAuthenticate}) {
             </Text>
           )}
         </View>
-        <View>
-          <IconButton
-            icon="logo-google"
-            color={'white'}
-            size={24}
-            onPress={onGoogleButtonPress}
-          />
-          {/* <GoogleSigninButton
-            size={GoogleSigninButton.Size.Wide}
-            color={GoogleSigninButton.Color.Dark}
-            onPress={this._signIn}
-            disabled={this.state.isSigninInProgress}
-          /> */}
+        <View style={{padding: 10}}>
+          <GoogleLoginButton onGoogleButtonPress={onGoogleButtonPress} />
         </View>
       </View>
     </View>
