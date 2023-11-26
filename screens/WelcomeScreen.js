@@ -1,86 +1,75 @@
-import {useContext, useEffect, useState} from 'react';
+import {useContext, useEffect} from 'react';
 import {
   Alert,
   Dimensions,
-  ImageBackground,
-  Modal,
-  Pressable,
+  FlatList,
+  Image,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
-import YoutubePlayer from 'react-native-youtube-iframe';
 import {AuthContext} from '../store/auth-context';
 import LottieView from 'lottie-react-native';
+import {useFetch} from '../util/hooks';
+import {cleanEmail} from '../util/auth';
 const {width, height} = Dimensions.get('window');
 
 function WelcomeScreen() {
   const {userEmail} = useContext(AuthContext);
+  var url =
+    'https://newsapi.org/v2/top-headlines?' +
+    'sources=bbc-news&' +
+    'apiKey=fd3f6bcd0b314637ad721ff604c61914';
+  var req = new Request(url);
 
-  function cleanEmail(email) {
-    const atIndex = email.indexOf('@');
-    if (atIndex !== -1 && email.endsWith('@gmail.com' && '@')) {
-      return email.substring(0, atIndex); // Extracts only the username part before '@'
-    }
-    return email; // If '@' is not found or the email doesn't end with '@gmail.com', return the original email
-  }
+  const {data, error, loading} = useFetch(req);
+
   const userNameClean = cleanEmail(userEmail);
-  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    setModalVisible(true);
+    Alert.alert(`Hi ${userNameClean}`, ' authenticated successfully');
   }, []);
 
+  if (loading) {
+    return (
+      <View style={styles.centeredView}>
+        <LottieView
+          style={styles.lottie}
+          source={require('./Animations/loadingAnim.json')}
+          autoPlay
+          loop
+        />
+      </View>
+    );
+  }
+  // Function to render each item in the FlatListconst renderItem = ({ item }) => {
+  const renderItem = ({item, index}) => {
+    return (
+      <TouchableOpacity onPress={() => handleItemClick(item)} key={item.id}>
+        <View style={styles.card} key={index}>
+          <Image style={styles.image} source={{uri: item.urlToImage}} />
+          <Text style={styles.cardTitle}>{item.title}</Text>
+          <Text>{item.description}</Text>
+          <Text numberOfLines={1}>{item.content}</Text>
+          <Text>Author: {item.author}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  // Function to handle item click
+  const handleItemClick = item => {
+    // Handle click action here based on the clicked item
+    // For example: navigate to a detailed view, etc.
+  };
   return (
     <View>
-      {/* // <ImageBackground */}
-      {/* //   source={require('../screens/placeholders/goldfish.jpg')} */}
-      {/* //   style={{flex: 1}}> */}
-      {/* <View style={styles.overlay} />
-      <View style={styles.rootContainer}>
-        {/* <YoutubePlayer
-          height={300}
-          play={true}
-          webViewStyle={{borderRadius: 30}}
-          forceAndroidAutoplay={true}
-          videoId={'P1IZJt9t39Y'}
-          allowWebViewZoom={true}
-  /> */}
-      <Text style={styles.title}>Hi🖐️{userNameClean}!</Text>
-      <Text style={styles.txt}>You authenticated successfully!!</Text>
-      <LottieView
-        style={styles.lottie}
-        source={require('./Animations/confetti.json')}
-        autoPlay
-        loop
+      <FlatList
+        data={data}
+        renderItem={renderItem}
+        keyExtractor={item => item.id} // Assuming 'id' is a unique identifier for each item
       />
-      {/* <View style={styles.centeredView}>
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => {
-              Alert.alert('Modal has been closed.');
-              setModalVisible(!modalVisible);
-            }}>
-            <View style={styles.centeredView}>
-              <View style={styles.modalView}>
-                <Text style={styles.title}>
-                  Welcome {''}
-                  {userNameClean}!
-                </Text>
-                <Text style={styles.txt}>You authenticated successfully!!</Text>
-                <Pressable
-                  style={[styles.button, styles.buttonClose]}
-                  onPress={() => setModalVisible(!modalVisible)}>
-                  <Text style={styles.textStyle}>close</Text>
-                </Pressable>
-              </View>
-            </View>
-          </Modal>
-        </View> */}
-      {/* </View> */}
-      {/* // </ImageBackground> */}
     </View>
   );
 }
@@ -156,5 +145,28 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: 'center',
+  },
+
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    padding: 16,
+    margin: 8,
+    shadowColor: '#000000',
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4, // for Android shadow
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  image: {
+    width: '100%', // Adjust the width as needed
+    height: 200, // Adjust the height as needed
+    resizeMode: 'cover', // or 'contain' for different image fitting
+    borderRadius: 8, // if you want to apply border radius to the image
+    marginBottom: 8, // Margin bottom for the image
   },
 });
