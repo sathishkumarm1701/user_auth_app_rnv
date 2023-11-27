@@ -1,7 +1,5 @@
-import axios from 'axios';
 import {FIREBASE_AUTH} from './auth-config';
 import {
-  GoogleAuthProvider,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from 'firebase/auth';
@@ -9,9 +7,8 @@ import {Alert} from 'react-native';
 
 const auth = FIREBASE_AUTH;
 export function cleanEmail(email) {
-  const atIndex = email.indexOf('@');
-  const checkedMail = email.substring(0, atIndex);
-  return checkedMail;
+  const splitedName = email.split('@');
+  return splitedName[0];
 }
 
 export async function createUser(email, password) {
@@ -22,7 +19,6 @@ export async function createUser(email, password) {
       email,
       password,
     );
-    console.log(response._tokenResponse);
     if (response && response.user) {
       Alert.alert('signUp ✅', 'successfully');
     }
@@ -47,23 +43,3 @@ export async function login(email, password) {
     return error;
   }
 }
-
-// const provider = new GoogleAuthProvider();
-// export let signInWithGoogle = () => {
-//   signInWithPopup(auth, provider)
-//     .then(result => {
-//       const credential = GoogleAuthProvider.credentialFromResult(result);
-//       console.log(credential);
-//       const token = credential.accessToken;
-//       const user = result.user;
-//       navigation.navigate('Home');
-//       console.log(user);
-//     })
-//     .catch(error => {
-//       const errorCode = error.code;
-//       const errorMessage = error.message;
-//       const email = error.customData.email;
-//       const credential = GoogleAuthProvider.credentialFromError(error);
-//       console.log(errorCode, errorMessage, email, credential);
-//     });
-// };

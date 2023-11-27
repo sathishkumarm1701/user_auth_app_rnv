@@ -1,4 +1,4 @@
-import {createContext, useContext, useState} from 'react';
+import {useContext, useState} from 'react';
 import AuthContent from '../components/Auth/AuthContent';
 import {createUser} from '../util/auth';
 import LoadingOverlay from '../components/ui/LoadingOverlay';
