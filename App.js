@@ -22,8 +22,7 @@ function AuthStack() {
         headerStyle: {backgroundColor: Colors.primary500},
         headerTintColor: 'white',
         // contentStyle: {backgroundColor: Colors.primary100},
-      }}
-    >
+      }}>
       <Stack.Screen
         options={{headerShown: false}}
         name="OnboardingScreen"
@@ -59,7 +58,6 @@ function AuthenticatedStack() {
           ),
         }}
       />
-      {/* <Stack.Screen name="Onboarding" component={Onboarding} /> */}
     </Stack.Navigator>
   );
 }
@@ -104,7 +102,6 @@ export default function App() {
     <>
       <StatusBar style="light" />
       <AuthContextProvider>
-        {/* <Onboarding /> */}
         <Root />
       </AuthContextProvider>
     </>
