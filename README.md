@@ -74,6 +74,14 @@ If you can't get this to work, see the [Troubleshooting](https://reactnative.dev
 
 # Learn More
 
+
+https://github.com/sathishkumarm1701/user_auth_app_rnv/assets/94674492/bd8a0b19-861c-4f79-bc02-e9b9784baa34
+
+
+
+https://github.com/sathishkumarm1701/user_auth_app_rnv/assets/94674492/9083aa69-7ea2-4c7b-bf46-f5027ffcb8c5
+
+
 To learn more about React Native, take a look at the following resources:
 
 - [React Native Website](https://reactnative.dev) - learn more about React Native.
