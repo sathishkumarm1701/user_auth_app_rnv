@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "723652959437",
+    "project_id": "rnauth-91576",
+    "storage_bucket": "rnauth-91576.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:723652959437:android:6783f8c86e0622f7715d84",
+        "android_client_info": {
+          "package_name": "skdev.com"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "723652959437-lsbpf6ao27maknfn5uunhvosgus7o3hk.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "skdev.com",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "723652959437-v87sc5hmd5veo3j53pje6q7r7vh3a6no.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVQQF-jKwS_a1UDrkhrHg9Z6fpbI2OnHA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "723652959437-v87sc5hmd5veo3j53pje6q7r7vh3a6no.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
