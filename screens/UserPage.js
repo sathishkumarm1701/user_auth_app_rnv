@@ -1,16 +1,11 @@
-import React, {useState, useEffect, useContext, useMemo} from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
 import {Text, View, Image, StyleSheet, Dimensions} from 'react-native';
-
 import {retrieveUserData} from '../util/auth';
-import {TouchableOpacity} from 'react-native';
-import Button from '../components/ui/Button';
-import {AuthContext} from '../store/auth-context';
 
 const windowWidth = Dimensions.get('window').width;
 
 export default function UserPage() {
   const [userDetails, setUserDetails] = useState(null);
-  const authCtx = useContext(AuthContext);
 
   const userDetailsGetHandler = useMemo(async () => {
     try {
