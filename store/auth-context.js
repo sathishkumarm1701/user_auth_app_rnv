@@ -15,7 +15,6 @@ export const AuthContext = createContext({
   checkTokenAvailable: () => {},
   userEmail: '',
   onGoogleButtonPress: () => {},
-  // retrieveUserData: () => {},
 });
 export function AuthContextProvider({children}) {
   const [authToken, setAuthToken] = useState('');
@@ -143,7 +142,6 @@ export function AuthContextProvider({children}) {
     userEmail,
     refreshToken,
     onGoogleButtonPress,
-    // retrieveUserData,
   };
 
   return (
