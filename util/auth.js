@@ -4,6 +4,7 @@ import {
   signInWithEmailAndPassword,
 } from 'firebase/auth';
 import {Alert} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const auth = FIREBASE_AUTH;
 export function cleanEmail(email) {
@@ -43,3 +44,18 @@ export async function login(email, password) {
     return error;
   }
 }
+
+export const retrieveUserData = async () => {
+  try {
+    const storedUserData = await AsyncStorage.getItem('userData');
+    if (storedUserData !== null) {
+      const parsedUserData = JSON.parse(storedUserData);
+      return parsedUserData;
+    } else {
+      Alert.alert('No user data found.');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error retrieving user data:', error);
+  }
+};
