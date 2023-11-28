@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+
 import {AuthContext} from '../store/auth-context';
 import LottieView from 'lottie-react-native';
 import {useFetch} from '../util/hooks';
@@ -69,6 +70,8 @@ function WelcomeScreen() {
         data={data}
         renderItem={renderItem}
         keyExtractor={item => item.id} // Assuming 'id' is a unique identifier for each item
+        refreshControl={loading}
+        // renderScrollComponent={data}
       />
     </View>
   );
