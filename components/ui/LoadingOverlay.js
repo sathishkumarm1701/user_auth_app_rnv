@@ -34,6 +34,7 @@ const styles = StyleSheet.create({
   message: {
     fontSize: 16,
     marginBottom: 12,
+    color:'black',
   },
   lottie: {
     width: width * 0.9,

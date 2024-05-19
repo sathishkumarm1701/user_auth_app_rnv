@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Colors } from '../../constants/styles';
+import { AppColors } from '../../constants/styles';
 
 function FlatButton({ children, onPress }) {
   return (
@@ -27,6 +27,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     textAlign: 'center',
-    color: Colors.primary100,
+    color: AppColors.primary100,
   },
 });

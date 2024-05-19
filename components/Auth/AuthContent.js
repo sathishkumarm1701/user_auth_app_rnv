@@ -28,15 +28,13 @@ function AuthContent({isLogin, onAuthenticate}) {
 
   const getToken = async () => {
     const token = await messaging().getToken();
-    console.log(token);
   };
 
-
-  
   useEffect(() => {
     requestUserPermission();
     getToken();
   }, []);
+
   function switchAuthModeHandler() {
     if (isLogin) {
       navigation.replace('Signup');

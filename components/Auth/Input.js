@@ -1,8 +1,22 @@
-import {View, Text, TextInput, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 
-import {Colors} from '../../constants/styles';
+import {AppColors} from '../../constants/styles';
+import {useState} from 'react';
+import IconButton from '../ui/IconButton';
 
 function Input({label, keyboardType, secure, onUpdateValue, value, isInvalid}) {
+  const [isPasswordVisible, setPasswordVisible] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(prev => !prev);
+  };
+
   return (
     <View style={styles.inputContainer}>
       <Text style={[styles.label, isInvalid && styles.labelInvalid]}>
@@ -10,13 +24,22 @@ function Input({label, keyboardType, secure, onUpdateValue, value, isInvalid}) {
       </Text>
       <TextInput
         style={[styles.input, isInvalid && styles.inputInvalid]}
-        autoCapitalize={false}
         autoCapitalize="none"
         keyboardType={keyboardType}
-        secureTextEntry={secure}
+        secureTextEntry={secure && !isPasswordVisible}
         onChangeText={onUpdateValue}
         value={value}
       />
+      {secure && (
+        <TouchableOpacity style={styles.toggleButton}>
+          <IconButton
+            onPress={togglePasswordVisibility}
+            icon={isPasswordVisible ? 'eye-off' : 'eye'}
+            size={24}
+            color={AppColors.primary500}
+          />
+        </TouchableOpacity>
+      )} 
     </View>
   );
 }
@@ -32,16 +55,26 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   labelInvalid: {
-    color: Colors.error500,
+    color: AppColors.error500,
   },
   input: {
     paddingVertical: 8,
     paddingHorizontal: 6,
-    backgroundColor: Colors.primary100,
+    backgroundColor: AppColors.primary100,
     borderRadius: 4,
     fontSize: 16,
+    // paddingRight: 50, // Add padding to accommodate the toggle button
   },
   inputInvalid: {
-    backgroundColor: Colors.error100,
+    backgroundColor: AppColors.error100,
+  },
+  toggleButtonText: {
+    color: AppColors.primary500,
+    fontSize: 16,
+  },
+  toggleButton: {
+    position: 'absolute',
+    right: 10,
+    top: '35%',
   },
 });

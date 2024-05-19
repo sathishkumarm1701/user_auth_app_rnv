@@ -1,36 +1,40 @@
-import {useContext, useEffect} from 'react';
+import {useContext, useState} from 'react';
 import {
   Alert,
   Dimensions,
   FlatList,
-  Image,
   StyleSheet,
-  Text,
   TouchableOpacity,
-  View,
 } from 'react-native';
-
 import {AuthContext} from '../store/auth-context';
 import LottieView from 'lottie-react-native';
 import {useFetch} from '../util/hooks';
-import {cleanEmail} from '../util/auth';
+import {
+  Center,
+  Text,
+  Box,
+  HStack,
+  Image,
+  Stack,
+  Heading,
+  AspectRatio,
+  View,
+  Pressable,
+} from 'native-base';
+import {getPostDateHours} from '../helper';
+
 const {width, height} = Dimensions.get('window');
 
 function WelcomeScreen() {
-  const {userEmail} = useContext(AuthContext);
-  var url =
+  let url =
     'https://newsapi.org/v2/top-headlines?' +
     'sources=bbc-news&' +
     'apiKey=fd3f6bcd0b314637ad721ff604c61914';
-  var req = new Request(url);
-
+  const {userEmail} = useContext(AuthContext);
+  let req = new Request(url);
   const {data, error, loading} = useFetch(req);
 
-  const userNameClean = cleanEmail(userEmail);
-
-  useEffect(() => {
-    Alert.alert(`Hi ${userNameClean}`, ' authenticated successfully');
-  }, []);
+  // const userNameClean = cleanEmail(userEmail);
 
   if (loading) {
     return (
@@ -44,32 +48,84 @@ function WelcomeScreen() {
       </View>
     );
   }
-  // Function to render each item in the FlatListconst renderItem = ({ item }) => {
+
   const renderItem = ({item, index}) => {
     return (
-      <TouchableOpacity onPress={() => handleItemClick(item)} key={item.id}>
-        <View style={styles.card} key={index}>
-          <Image style={styles.image} source={{uri: item.urlToImage}} />
-          <Text style={styles.cardTitle}>{item.title}</Text>
-          <Text>{item.description}</Text>
-          <Text numberOfLines={1}>{item.content}</Text>
-          <Text>Author: {item.author}</Text>
-        </View>
-      </TouchableOpacity>
+      <Pressable maxW="96" style={styles.card} key={index}>
+        {({isHovered, isFocused, isPressed}) => {
+          return (
+            <Box
+              alignItems="center"
+              bg={
+                isPressed
+                  ? 'coolGray.200'
+                  : isHovered
+                  ? 'coolGray.200'
+                  : 'coolGray.100'
+              }>
+              <AspectRatio w="100%" ratio={16 / 8}>
+                <Image
+                  style={styles.image}
+                  source={{
+                    uri: item.urlToImage,
+                  }}
+                  alt="image"
+                />
+              </AspectRatio>
+              <Stack space={2}>
+                <Heading size="md" ml="-1">
+                  {item.title}
+                </Heading>
+                <Text
+                  fontSize="xs"
+                  _light={{
+                    color: 'violet.500',
+                  }}
+                  _dark={{
+                    color: 'violet.400',
+                  }}
+                  fontWeight="500"
+                  ml="-0.5"
+                  mt="-1">
+                  {item.description}
+                </Text>
+              </Stack>
+              <Text fontWeight="400" numberOfLines={1}>
+                {item.content}
+              </Text>
+              <Text style={styles.author}>Author: {item.author}</Text>
+              <HStack
+                alignItems="center"
+                space={4}
+                justifyContent="space-between">
+                <HStack alignItems="center">
+                  <Text
+                    color="coolGray.600"
+                    _dark={{
+                      color: 'warmGray.200',
+                    }}
+                    fontWeight="400">
+                    {getPostDateHours(item.publishedAt)}
+                  </Text>
+                </HStack>
+              </HStack>
+            </Box>
+          );
+        }}
+      </Pressable>
     );
   };
 
-  // Function to handle item click
   const handleItemClick = item => {
-    // Handle click action here based on the clicked item
-    // For example: navigate to a detailed view, etc.
+    // Handle item click
   };
+
   return (
     <View>
       <FlatList
         data={data}
         renderItem={renderItem}
-        keyExtractor={item => item.id} // Assuming 'id' is a unique identifier for each item
+        keyExtractor={item => item.url}
         refreshControl={loading}
       />
     </View>
@@ -84,10 +140,19 @@ const styles = StyleSheet.create({
     height: width,
     justifyContent: 'center',
   },
+  description: {
+    color: 'black',
+  },
+  content: {
+    color: 'black',
+  },
+  author: {
+    color: 'black',
+  },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#FD4C79', // Your desired fade color
-    opacity: 0.5, // Adjust the opacity as needed
+    backgroundColor: '#FD4C79',
+    opacity: 0.5,
   },
   rootContainer: {
     position: 'relative',
@@ -151,24 +216,25 @@ const styles = StyleSheet.create({
 
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 8,
+    borderRadius: 4,
     padding: 16,
     margin: 8,
     shadowColor: '#000000',
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    elevation: 4, // for Android shadow
+    elevation: 4,
   },
   cardTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 8,
+    color: 'black',
   },
   image: {
-    width: '100%', // Adjust the width as needed
-    height: 200, // Adjust the height as needed
-    resizeMode: 'cover', // or 'contain' for different image fitting
-    borderRadius: 8, // if you want to apply border radius to the image
-    marginBottom: 8, // Margin bottom for the image
+    width: '100%',
+    height: 200,
+    resizeMode: 'cover',
+    borderRadius: 8,
+    marginBottom: 8,
   },
 });

@@ -1,28 +1,35 @@
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {Image, StatusBar, TouchableOpacity, View} from 'react-native';
+import {StatusBar} from 'react-native';
 import LoginScreen from './screens/LoginScreen';
 import SignupScreen from './screens/SignupScreen';
-import WelcomeScreen from './screens/WelcomeScreen';
-import {Colors} from './constants/styles';
+import {AppColors} from './constants/styles';
 import {AuthContext, AuthContextProvider} from './store/auth-context';
 import {useContext, useEffect, useState} from 'react';
-import IconButton from './components/ui/IconButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SplashScreen from 'react-native-splash-screen';
 import OnboardingScreen from './screens/Onboarding';
-import UserPage from './screens/UserPage';
-import {useNavigation} from '@react-navigation/native';
-import {retrieveUserData} from './util/auth';
+import {NativeBaseProvider, extendTheme} from 'native-base';
+import AuthenticatedStack from './routes/RootNavigation';
+import {Stack} from './helper';
 
-const Stack = createNativeStackNavigator();
+const newColorTheme = {
+  brand: {
+    900: '#8287af',
+    800: '#7c83db',
+    700: '#b3bef6',
+  },
+};
+const theme = extendTheme({colors: newColorTheme});
+
+// const Stack = createNativeStackNavigator();
 
 function AuthStack() {
   return (
     <Stack.Navigator
       initialRouteName="OnboardingScreen"
       screenOptions={{
-        headerStyle: {backgroundColor: Colors.primary500},
+        headerStyle: {backgroundColor: AppColors.primary500},
         headerTintColor: 'white',
         // contentStyle: {backgroundColor: Colors.primary100},
       }}>
@@ -38,82 +45,9 @@ function AuthStack() {
   );
 }
 
-function AuthenticatedStack() {
-  const authCtx = useContext(AuthContext);
-  const [userDetails, setUserDetails] = useState(null);
-  const navigation = useNavigation();
-  const navigationHandler = () => {
-    navigation.navigate('UserDetails');
-  };
-  const userDetailsGetHandler = async () => {
-    try {
-      const userData = await retrieveUserData();
-      console.log(userData);
-      setUserDetails(userData);
-    } catch (error) {
-      console.error('Error retrieving user details:', error);
-    }
-  };
-
-  useEffect(() => {
-    userDetailsGetHandler();
-  }, []);
-
-  return (
-    <Stack.Navigator
-      screenOptions={{
-        headerStyle: {backgroundColor: Colors.primary500},
-        headerTintColor: 'white',
-        contentStyle: {backgroundColor: Colors.primary100},
-      }}>
-      <Stack.Screen
-        name="Welcome"
-        component={WelcomeScreen}
-        options={({navigation}) => ({
-          headerRight: () => {
-            const userImageURL = userDetails && userDetails.photo;
-            return userImageURL ? (
-              <TouchableOpacity onPress={navigationHandler}>
-                <Image
-                  source={{uri: userImageURL}}
-                  style={{
-                    width: 35,
-                    height: 35,
-                    marginRight: 10,
-                    borderRadius: 20,
-                    backgroundColor: 'white',
-                    borderWidth: 1,
-                    borderColor: 'green',
-                  }}
-                />
-              </TouchableOpacity>
-            ) : null;
-          },
-          // headerStyle: {backgroundColor: Colors.primary500},
-          // headerTintColor: 'white',
-          // contentStyle: {backgroundColor: Colors.primary100},
-        })}
-      />
-      <Stack.Screen
-        options={{
-          headerRight: ({tintColor}) => (
-            <IconButton
-              icon="exit"
-              color={tintColor}
-              size={24}
-              onPress={authCtx.logout}
-            />
-          ),
-        }}
-        name="UserDetails"
-        component={UserPage}
-      />
-    </Stack.Navigator>
-  );
-}
-
 function Navigation() {
   const authCtx = useContext(AuthContext);
+
   return (
     <NavigationContainer>
       {!authCtx.isAuthenticated && <AuthStack />}
@@ -124,21 +58,16 @@ function Navigation() {
 
 function Root() {
   const authCtx = useContext(AuthContext);
-
   useEffect(() => {
     SplashScreen.hide();
     async function fetchAuthToken() {
-      const storedToken = await AsyncStorage.getItem('token');
+      const storedToken = await AsyncStorage.getItem('aud');
       const storedEmail = await AsyncStorage.getItem('email');
-      const storedExpTime = await AsyncStorage.getItem('TokenExpTime');
-      const refreshToken = await AsyncStorage.getItem('refreshToken');
       const listCred = {
         idToken: storedToken,
         email: storedEmail,
-        expiresIn: storedExpTime,
-        refreshToken: refreshToken,
       };
-      if (storedToken && storedEmail && storedExpTime) {
+      if (storedToken != null) {
         authCtx.authenticate(listCred);
       }
     }
@@ -150,10 +79,12 @@ function Root() {
 export default function App() {
   return (
     <>
-      <StatusBar style="light" />
-      <AuthContextProvider>
-        <Root />
-      </AuthContextProvider>
+      <NativeBaseProvider theme={theme}>
+        <StatusBar style="light" />
+        <AuthContextProvider>
+          <Root />
+        </AuthContextProvider>
+      </NativeBaseProvider>
     </>
   );
 }

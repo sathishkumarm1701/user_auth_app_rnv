@@ -6,6 +6,8 @@ import {
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
+import Authorisation from '../Authorization/Authorization';
+import {jwtDecode} from 'jwt-decode';
 
 export const AuthContext = createContext({
   token: '',
@@ -17,11 +19,9 @@ export const AuthContext = createContext({
   onGoogleButtonPress: () => {},
 });
 export function AuthContextProvider({children}) {
-  const [authToken, setAuthToken] = useState('');
   const [userEmail, setUserEmail] = useState('');
-  const [tokenExpTime, setTokenExpTime] = useState('');
-  const [refreshToken, setRefreshToken] = useState('');
-
+  const [token, setToken] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   useEffect(() => {
     GoogleSignin.configure({
       webClientId:
@@ -32,27 +32,25 @@ export function AuthContextProvider({children}) {
 
   async function onGoogleButtonPress() {
     try {
-      // Check if your device supports Google Play
-      await GoogleSignin.hasPlayServices({showPlayServicesUpdateDialog: true});
+      const GoogleSignInhasPlayServices = await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
+      Authorisation.GoogleSignin(GoogleSignInhasPlayServices);
       const {idToken, user} = await GoogleSignin.signIn();
-      console.log(idToken);
-      console.log(user);
-      await storeUserData(user);
-      setAuthToken(idToken);
-      const googleCredential = await auth.GoogleAuthProvider.credential(
-        idToken,
+      setToken(idToken);
+      storeUserData(user);
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+      Authorisation.login(idToken);
+      const lastReturnData = await auth().signInWithCredential(
+        googleCredential,
       );
-      console.log(googleCredential);
-      return auth().signInWithCredential(googleCredential);
+      setIsAuthenticated(!!idToken);
+      return lastReturnData;
     } catch (error) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        // user cancelled the login flow
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        // operation (e.g. sign in) is in progress already
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        // play services not available or outdated
       } else {
-        // some other error happened
       }
     }
   }
@@ -61,11 +59,11 @@ export function AuthContextProvider({children}) {
     try {
       const jsonUserData = JSON.stringify(userData);
       await AsyncStorage.setItem('userData', jsonUserData);
-      console.log('User data stored successfully.');
     } catch (error) {
       console.error('Error storing user data:', error);
     }
   };
+
   const signOut = async () => {
     try {
       // await GoogleSignin.revokeAccess();
@@ -76,71 +74,53 @@ export function AuthContextProvider({children}) {
   };
 
   const authenticate = async token => {
-    setAuthToken(token.idToken);
+    Authorisation.login(token.idToken);
     setUserEmail(token.email);
-    setTokenExpTime(token.expiresIn);
-    setRefreshToken(token.refreshToken);
-    await checkTokenValidity();
-    if (token.idToken && token.expiresIn) {
-      await AsyncStorage.setItem('token', token.idToken);
-      await AsyncStorage.setItem('TokenExpTime', token.expiresIn);
-      await AsyncStorage.setItem('email', token.email);
-      await AsyncStorage.setItem('refreshToken', token.refreshToken);
-    }
-  };
-  const checkTokenValidity = async () => {
-    const storedToken = await AsyncStorage.getItem('token');
-    const storedExpTime = await AsyncStorage.getItem('TokenExpTime');
-    if (storedToken && storedExpTime) {
-      setAuthToken(storedToken);
-      setUserEmail(await AsyncStorage.getItem('email'));
-      setTokenExpTime(storedExpTime);
-      const expirationTime =
-        new Date().getTime() + Number(storedExpTime) * 1000;
-      const timeDiff = expirationTime - Date.now();
-      const threshold = 60 * 60 * 1000; // 60 minutes in milliseconds
-      console.log(timeDiff);
-      console.log(threshold);
-      if (timeDiff < new Date().getTime()) {
-        console.log('checkTokenValidity=timeDiff');
-        try {
-          // Perform token refresh logic if needed
-          const refreshedToken = await auth().currentUser.getIdToken(
-            /* forceRefresh */ true,
-          );
-          setAuthToken(refreshedToken);
-          await AsyncStorage.setItem('token', refreshedToken);
-        } catch (error) {
-          console.error('Error refreshing token:', error);
-        }
-      }
-    }
+    setToken(token.idToken);
+    setIsAuthenticated(!!token.idToken);
   };
 
   useEffect(() => {
-    checkTokenValidity();
-  }, []);
+    const loadAuthData = async () => {
+      try {
+        const storedToken = await AsyncStorage.getItem('aud');
+        if (storedToken != null || storedToken != undefined) {
+          const decodedToken = jwtDecode(storedToken);
+          Authorisation.setAuthUser(decodedToken);
+          Authorisation.checkTokenExpiry();
+          setToken(storedToken);
+          setIsAuthenticated(!!storedToken);
+          Authorisation.GoogleSignin(false);
+        }
+        const storedUserEmail = await AsyncStorage.getItem('userEmail');
+        setUserEmail(storedUserEmail);
+      } catch (error) {
+        console.error('Error loading auth data from AsyncStorage:', error);
+      }
+    };
+
+    loadAuthData();
+  }, [isAuthenticated]);
 
   const logout = async () => {
-    await AsyncStorage.removeItem('token');
-    await AsyncStorage.removeItem('TokenExpTime');
+    await AsyncStorage.removeItem('aud');
     await AsyncStorage.removeItem('email');
-    setAuthToken('');
+    await AsyncStorage.removeItem('userData');
+    await AsyncStorage.removeItem('userEmail');
     setUserEmail('');
-    setTokenExpTime('');
-    await auth().signOut();
-    await signOut();
-    Alert.alert('Success ✅', 'Logout successfully');
+    setToken('');
+    setIsAuthenticated(false);
+    const googleKey = (await AsyncStorage.getItem('isGoogle')) != null;
+    if (googleKey) {
+      await signOut();
+    }
   };
-
   const contextValue = {
-    tokenExpTime,
-    token: authToken,
-    isAuthenticated: !!authToken,
-    authenticate: authenticate,
-    logout,
+    token,
+    isAuthenticated,
+    authenticate,
+    logout: logout,
     userEmail,
-    refreshToken,
     onGoogleButtonPress,
   };
 

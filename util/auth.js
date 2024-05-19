@@ -8,8 +8,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const auth = FIREBASE_AUTH;
 export function cleanEmail(email) {
-  const splitedName = email.split('@');
-  return splitedName[0];
+  const splitedName = email && email?.split('@');
+  return splitedName && splitedName[0];
 }
 
 export async function createUser(email, password) {
@@ -25,7 +25,6 @@ export async function createUser(email, password) {
     }
     return response._tokenResponse;
   } catch (error) {
-    console.log(error);
     return error;
   }
 }
@@ -34,13 +33,11 @@ export async function login(email, password) {
   // return authenticate('signInWithPassword', email, password);
   try {
     const response = await signInWithEmailAndPassword(auth, email, password);
-    console.log(response._tokenResponse);
     if (response && response.user) {
       Alert.alert('Success ✅', 'Authenticated successfully');
     }
     return response._tokenResponse;
   } catch (error) {
-    console.log(error);
     return error;
   }
 }
@@ -52,8 +49,7 @@ export const retrieveUserData = async () => {
       const parsedUserData = JSON.parse(storedUserData);
       return parsedUserData;
     } else {
-      Alert.alert('No user data found.');
-      return null;
+      return;
     }
   } catch (error) {
     console.error('Error retrieving user data:', error);
